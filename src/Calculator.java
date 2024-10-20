@@ -5,8 +5,10 @@ import java.awt.event.ActionListener;
 public class Calculator {
 
     private double total = 0.0;
-    private double total2 = 0.0;
     private char math_operator;
+    private boolean startNewNumber = true;
+    private boolean StarNewResult = true;
+    private boolean hasOperator = false;
 
     private JPanel Calculator;
     private JTextField Display;
@@ -28,118 +30,141 @@ public class Calculator {
     private JButton Button3;
     private JButton Button0;
 
+    private String formatNumber(double number) {
+        if (number == (long) number) {
+            return String.format("%d", (long) number);
+        } else {
+            return String.format("%s", number);
+        }
+    }
+
+    private void getOperator(String Button) {
+        if (hasOperator) {
+            calculateResult();
+        }
+        math_operator = Button.charAt(0);
+        hasOperator = true;
+        startNewNumber = true;
+        Display.setText(Display.getText() + " " + Button + " ");
+    }
+
+    private void calculateResult() {
+        String[] parts = Display.getText().split(" ");
+        if (parts.length >= 3) {
+            double num1 = Double.parseDouble(parts[0]);
+            double num2 = Double.parseDouble(parts[2]);
+            switch (math_operator) {
+                case '+':
+                    total = num1 + num2;
+                    break;
+                case '-':
+                    total = num1 - num2;
+                    break;
+                case '*':
+                    total = num1 * num2;
+                    break;
+                case '/':
+                    if (num2 != 0) {
+                        total = num1 / num2;
+                    } else {
+                        Display.setText("Error: División por cero");
+                        return;
+                    }
+                    break;
+            }
+            Display.setText(formatNumber(total));
+            hasOperator = false;
+        }
+    }
+
     public Calculator() {
-        Button1.addActionListener(new ActionListener() {
+        ActionListener numberListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String Button1Text = Display.getText() + Button1.getText();
-                Display.setText(Button1Text);
-
+                JButton source = (JButton) e.getSource();
+                if (startNewNumber) {
+                    if (hasOperator) {
+                        Display.setText(Display.getText() + source.getText());
+                    } else {
+                        Display.setText(source.getText());
+                    }
+                    startNewNumber = false;
+                } else {
+                    Display.setText(Display.getText() + source.getText());
+                }
             }
-        });
-        Button2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String Button2Text = Display.getText() + Button2.getText();
-                Display.setText(Button2Text);
+        };
 
-            }
-        });
-        Button3.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String Button3Text = Display.getText() + Button3.getText();
-                Display.setText(Button3Text);
+        Button0.addActionListener(numberListener);
+        Button1.addActionListener(numberListener);
+        Button2.addActionListener(numberListener);
+        Button3.addActionListener(numberListener);
+        Button4.addActionListener(numberListener);
+        Button5.addActionListener(numberListener);
+        Button6.addActionListener(numberListener);
+        Button7.addActionListener(numberListener);
+        Button8.addActionListener(numberListener);
+        Button9.addActionListener(numberListener);
 
-            }
-        });
-        Button4.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String Button4Text = Display.getText() + Button4.getText();
-                Display.setText(Button4Text);
-
-            }
-        });
-        Button5.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String Button5Text = Display.getText() + Button5.getText();
-                Display.setText(Button5Text);
-
-            }
-        });
-        Button6.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String Button6Text = Display.getText() + Button6.getText();
-                Display.setText(Button6Text);
-
-            }
-        });
-        Button7.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String Button7Text = Display.getText() + Button7.getText();
-                Display.setText(Button7Text);
-
-            }
-        });
-        Button8.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String Button8Text = Display.getText() + Button8.getText();
-                Display.setText(Button8Text);
-
-            }
-        });
-        Button9.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String Button9Text = Display.getText() + Button9.getText();
-                Display.setText(Button9Text);
-
-            }
-        });
         ButtonMAS.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               total = total + Double.parseDouble(Display.getText());
-                Display.setText("");
+                getOperator(ButtonMAS.getText());
             }
         });
+
         ButtonIGUAL.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                total2 = total + Double.parseDouble(Display.getText());
-                Display.setText(Double.toString(total2));
-                total = 0;
+                if (hasOperator) {
+                    calculateResult();
+                    StarNewResult = true;
+                }
             }
         });
+
         ButtonDEL.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                total2 = 0;
                 Display.setText("");
+                total = 0;
+                startNewNumber = true;
+                hasOperator = false;
             }
         });
+
         ButtonPUNTO.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(Display.getText().equals("")){
-                    Display.setText("0.");
-                }else if (Display.getText().contains(".")){
-                    ButtonPUNTO.setEnabled(false);
-                }else {
-                    String ButtonPtext = Display.getText() + ButtonPUNTO.getText();
-                    Display.setText(ButtonPtext);
+                if (startNewNumber) {
+                    Display.setText(Display.getText() + "0.");
+                    startNewNumber = false;
+                } else if (!Display.getText().contains(".")) {
+                    Display.setText(Display.getText() + ".");
                 }
-                ButtonPUNTO.setEnabled(true);
-
             }
         });
 
+        ButtonMenos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getOperator(ButtonMenos.getText());
+            }
+        });
 
+        ButtonDIVI.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getOperator(ButtonDIVI.getText());
+            }
+        });
+
+        ButtonMULT.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getOperator(ButtonMULT.getText());
+            }
+        });
     }
 
     public static void main(String[] args) {
